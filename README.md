@@ -1,2 +1,2 @@
-# maze-a-star
+# Maze A*
 Solving mazes with a* in Java
