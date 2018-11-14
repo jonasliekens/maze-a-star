@@ -1,6 +1,5 @@
 package be.brickbit.maze.domain;
 
-import java.util.Arrays;
 import java.util.Random;
 
 import static be.brickbit.maze.domain.FieldType.END;
@@ -36,8 +35,12 @@ public final class MazeBuilder {
      * @return @link be.brickbit.maze.domain.MazeBuilder instance
      */
     public MazeBuilder withHeight(int height) {
-        this.height = height;
-        return this;
+        if(height >= 3) {
+            this.height = height;
+            return this;
+        }else {
+            throw new IllegalArgumentException("The maze needs a height of at least 3 elements");
+        }
     }
 
     /**
@@ -46,8 +49,12 @@ public final class MazeBuilder {
      * @return @link be.brickbit.maze.domain.MazeBuilder instance
      */
     public MazeBuilder withWidth(int width) {
-        this.width = width;
-        return this;
+        if(width >= 3) {
+            this.width = width;
+            return this;
+        } else {
+            throw new IllegalArgumentException("The maze needs a width of at least 3 elements");
+        }
     }
 
     /**
@@ -102,15 +109,20 @@ public final class MazeBuilder {
             final int nextStepXAxisPosition = newXAxisPosition + DIRECTIONS[randomDirectionIndex].getxAxisDelta();
 
             if (isValidCarvePosition(maze, newYAxisPosition, newXAxisPosition) && isValidCarvePosition(maze, nextStepYAxisPosition, nextStepXAxisPosition)) {
-                maze[newYAxisPosition][newXAxisPosition] = SPACE;
-                maze[nextStepYAxisPosition][nextStepXAxisPosition] = SPACE;
-
+                carveSpace(maze, newYAxisPosition, newXAxisPosition);
+                carveSpace(maze, nextStepYAxisPosition, nextStepXAxisPosition);
                 carve(maze, nextStepYAxisPosition, nextStepXAxisPosition);
             } else {
                 //Change direction
                 randomDirectionIndex = (randomDirectionIndex + 1) % 4;
                 count += 1;
             }
+        }
+    }
+
+    private void carveSpace(FieldType[][] maze, int yAxisPosition, int xAxisPosition) {
+        if(maze[yAxisPosition][xAxisPosition] != END){
+            maze[yAxisPosition][xAxisPosition] = SPACE;
         }
     }
 
