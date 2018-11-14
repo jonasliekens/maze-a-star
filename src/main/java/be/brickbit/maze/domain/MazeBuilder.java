@@ -1,5 +1,6 @@
 package be.brickbit.maze.domain;
 
+import java.util.Arrays;
 import java.util.Random;
 
 import static be.brickbit.maze.domain.FieldType.END;
@@ -13,6 +14,12 @@ import static be.brickbit.maze.domain.FieldType.WALL;
 public final class MazeBuilder {
     private int width;
     private int height;
+    private static final Direction[] DIRECTIONS = {
+            Direction.DOWN,
+            Direction.UP,
+            Direction.RIGHT,
+            Direction.LEFT
+    };
 
     private MazeBuilder() {
         this.width = 11;
@@ -71,6 +78,7 @@ public final class MazeBuilder {
         maze[height - 2][width - 1] = END;
 
         //Carve maze
+        maze[1][1] = SPACE;
         carve(maze, 1, 1);
 
         return maze;
@@ -83,27 +91,20 @@ public final class MazeBuilder {
      * @param xAxisStartIndex the x axis index the algorithm should start at
      */
     private void carve(FieldType[][] maze, int yAxisStartIndex, int xAxisStartIndex) {
-        final Direction[] directions = {
-                Direction.DOWN,
-                Direction.UP,
-                Direction.RIGHT,
-                Direction.LEFT
-        };
-
-        maze[yAxisStartIndex][xAxisStartIndex] = SPACE;
-
         int randomDirectionIndex = new Random().nextInt(4);
         int count = 0;
 
         while (count < 4) {
-            final int newYAxisPosition = yAxisStartIndex + directions[randomDirectionIndex].getyAxisDelta();
-            final int newXAxisPosition = xAxisStartIndex + directions[randomDirectionIndex].getxAxisDelta();
+            final int newYAxisPosition = yAxisStartIndex + DIRECTIONS[randomDirectionIndex].getyAxisDelta();
+            final int newXAxisPosition = xAxisStartIndex + DIRECTIONS[randomDirectionIndex].getxAxisDelta();
 
-            final int nextStepYAxisPosition = newYAxisPosition + directions[randomDirectionIndex].getyAxisDelta();
-            final int nextStepXAxisPosition = newXAxisPosition + directions[randomDirectionIndex].getyAxisDelta();
+            final int nextStepYAxisPosition = newYAxisPosition + DIRECTIONS[randomDirectionIndex].getyAxisDelta();
+            final int nextStepXAxisPosition = newXAxisPosition + DIRECTIONS[randomDirectionIndex].getxAxisDelta();
 
-            if (isWall(maze, newYAxisPosition, newXAxisPosition) && isWall(maze, nextStepYAxisPosition, nextStepXAxisPosition)) {
+            if (isValidCarvePosition(maze, newYAxisPosition, newXAxisPosition) && isValidCarvePosition(maze, nextStepYAxisPosition, nextStepXAxisPosition)) {
                 maze[newYAxisPosition][newXAxisPosition] = SPACE;
+                maze[nextStepYAxisPosition][nextStepXAxisPosition] = SPACE;
+
                 carve(maze, nextStepYAxisPosition, nextStepXAxisPosition);
             } else {
                 //Change direction
@@ -111,18 +112,6 @@ public final class MazeBuilder {
                 count += 1;
             }
         }
-    }
-
-    /**
-     * checks if the
-     * @param maze the maze matrix
-     * @param yAxisPosition y axis index
-     * @param xAxisPosition x axis index
-     * @return true if the given position is contains a wall in the maze, false otherwise
-     */
-    private boolean isWall(FieldType[][] maze, int yAxisPosition, int xAxisPosition) {
-        return isValidCarvePosition(maze, yAxisPosition, xAxisPosition) &&
-                maze[yAxisPosition][xAxisPosition] == WALL;
     }
 
     /**
@@ -134,10 +123,11 @@ public final class MazeBuilder {
      * @return true if the coordinates are valid, false otherwise
      */
     private boolean isValidCarvePosition(FieldType[][] maze, int yAxisPosition, int xAxisPosition) {
-        return yAxisPosition < height - 1 &&
+        return yAxisPosition < height &&
                 yAxisPosition > 0 &&
-                xAxisPosition < width - 1 &&
-                xAxisPosition > 0;
+                xAxisPosition < width &&
+                xAxisPosition > 0 &&
+                (maze[yAxisPosition][xAxisPosition] == WALL || maze[yAxisPosition][xAxisPosition] == END);
     }
 
     private enum Direction {
