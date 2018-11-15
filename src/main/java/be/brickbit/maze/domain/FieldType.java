@@ -1,6 +1,7 @@
 package be.brickbit.maze.domain;
 
 public enum FieldType {
+    VISITED("- "),
     SPACE("  "),
     WALL("[]"),
     MARKER("x "),

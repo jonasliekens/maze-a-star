@@ -11,14 +11,14 @@ import static be.brickbit.maze.domain.FieldType.WALL;
  * Builder class to generate a @link be.brickbit.maze.domain.Maze instance
  */
 public final class MazeBuilder {
-    private int width;
-    private int height;
     private static final Direction[] DIRECTIONS = {
             Direction.DOWN,
             Direction.UP,
             Direction.RIGHT,
             Direction.LEFT
     };
+    private int width;
+    private int height;
 
     private MazeBuilder() {
         this.width = 11;
@@ -31,25 +31,27 @@ public final class MazeBuilder {
 
     /**
      * Assigns a custom height to the maze generator, default height is 11
+     *
      * @param height the height of the maze
      * @return @link be.brickbit.maze.domain.MazeBuilder instance
      */
     public MazeBuilder withHeight(int height) {
-        if(height >= 3) {
+        if (height >= 3) {
             this.height = height;
             return this;
-        }else {
+        } else {
             throw new IllegalArgumentException("The maze needs a height of at least 3 elements");
         }
     }
 
     /**
      * Assigns a custom width to the maze generator, default width is 11
+     *
      * @param width the height of the maze
      * @return @link be.brickbit.maze.domain.MazeBuilder instance
      */
     public MazeBuilder withWidth(int width) {
-        if(width >= 3) {
+        if (width >= 3) {
             this.width = width;
             return this;
         } else {
@@ -59,14 +61,18 @@ public final class MazeBuilder {
 
     /**
      * Builds a Maze object containing a maze matrix
+     *
      * @return a Maze instance
      */
     public Maze build() {
-        return new Maze(generate());
+        Node startNode = new Node(0, 1);
+        Node endNode = new Node(width - 1, height - 2);
+        return new Maze(generate(), startNode, endNode);
     }
 
     /**
      * Generates a solvable maze
+     *
      * @return maze matrix
      */
     private FieldType[][] generate() {
@@ -93,7 +99,8 @@ public final class MazeBuilder {
 
     /**
      * recursively carves out a solvable maze from a given matrix
-     * @param maze the maze matrix
+     *
+     * @param maze            the maze matrix
      * @param yAxisStartIndex the y axis index the algorithm should start at
      * @param xAxisStartIndex the x axis index the algorithm should start at
      */
@@ -121,7 +128,7 @@ public final class MazeBuilder {
     }
 
     private void carveSpace(FieldType[][] maze, int yAxisPosition, int xAxisPosition) {
-        if(maze[yAxisPosition][xAxisPosition] != END){
+        if (maze[yAxisPosition][xAxisPosition] != END) {
             maze[yAxisPosition][xAxisPosition] = SPACE;
         }
     }
@@ -129,7 +136,8 @@ public final class MazeBuilder {
     /**
      * checks if the given coordinates are not out of bounds and will leave the maze with a
      * surrounding wall
-     * @param maze the maze matrix
+     *
+     * @param maze          the maze matrix
      * @param yAxisPosition y axis index
      * @param xAxisPosition x axis index
      * @return true if the coordinates are valid, false otherwise
@@ -140,28 +148,5 @@ public final class MazeBuilder {
                 xAxisPosition < width &&
                 xAxisPosition > 0 &&
                 (maze[yAxisPosition][xAxisPosition] == WALL || maze[yAxisPosition][xAxisPosition] == END);
-    }
-
-    private enum Direction {
-        DOWN(1, 0),
-        UP(-1, 0),
-        RIGHT(0, 1),
-        LEFT(0, -1);
-
-        private int yAxisDelta;
-        private int xAxisDelta;
-
-        Direction(int yAxisDelta, int xAxisDelta) {
-            this.yAxisDelta = yAxisDelta;
-            this.xAxisDelta = xAxisDelta;
-        }
-
-        public int getyAxisDelta() {
-            return yAxisDelta;
-        }
-
-        public int getxAxisDelta() {
-            return xAxisDelta;
-        }
     }
 }
